@@ -31,3 +31,5 @@ function send() {
   }
   location.reload(true);
 }
+
+console.log("test");
