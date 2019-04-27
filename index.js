@@ -1,35 +1,61 @@
-const $ = document;
-const list = $.querySelector("#items");
-const btn = $.querySelector("button");
+window.onload = function() {
+  render();
+};
 
-const currentStorage = localStorage;
-if (localStorage.length !== 0) {
-  const res = JSON.parse(localStorage.getItem("key"));
-  console.log(res);
+function render() {
+  if (localStorage.length !== 0) {
+    const list = document.querySelector("#items");
 
-  const li = list.appendChild($.createElement("LI"));
-  li.innerHTML += res.value;
+    const args = loadNotes();
+
+    args.forEach(function(item, index) {
+      const li = list.appendChild(document.createElement("LI"));
+      const btn = document.createElement("button");
+      btn.innerText = "del";
+
+      btn.addEventListener("click", function(e) {
+        del(index);
+      });
+
+      li.appendChild(btn);
+      const anker = li.appendChild(document.createElement("A"));
+      anker.setAttribute("class", "dark");
+      console.log(item);
+
+      anker.innerHTML += item.text;
+    });
+  }
 }
 
-function send() {
-  const input = $.querySelector("input").value;
-  const obj = {
-    value: input
-  };
+function del(index) {
+  const entries = loadNotes();
+  entries.splice(index, 1);
+  setNotes(entries);
+}
 
+//Send function
+function send() {
+  const input = document.querySelector("input").value;
   if (!input) {
     console.log("Fail, no input");
-    console.log(input);
   } else {
-    if (localStorage.length === 0) {
-      localStorage.setItem("key", JSON.stringify(obj));
-    } else {
-      let items = JSON.parse(localStorage.getItem("key"));
-      console.log(typeof items);
-      localStorage.setItem("key", JSON.stringify(obj));
-    }
+    let item2 = {
+      text: input
+    };
+    let items = loadNotes();
+
+    items = items ? items : [];
+    items.push(item2);
+    setNotes(items);
   }
-  location.reload(true);
 }
 
-console.log("test");
+function loadNotes() {
+  const notes = localStorage.getItem("key");
+  const args = JSON.parse(notes);
+  return args;
+}
+
+function setNotes(items) {
+  localStorage.setItem("key", JSON.stringify(items));
+}

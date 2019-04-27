@@ -1,3 +1,19 @@
 body {
   background: #ebebeb;
 }
+
+ul {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  li {
+    list-style: none;
+    border-bottom: 1px solid black;
+    a {
+      display: inline-block;
+      padding: 0em 2em;
+      margin: 0.4em;
+      background: #d2d2;
+    }
+  }
+}
