@@ -10,21 +10,63 @@ function render() {
 
     args.forEach(function(item, index) {
       const li = list.appendChild(document.createElement("LI"));
-      const btn = document.createElement("button");
-      btn.innerText = "del";
+      const delBtn = document.createElement("button");
+      const editBtn = document.createElement("button");
+      const hideBtn = document.querySelector("#hideEdit");
 
-      btn.addEventListener("click", function(e) {
+      delBtn.innerText = "del";
+      editBtn.innerText = "rediger";
+
+      //TODO: Optimer disse funktioner.
+      delBtn.addEventListener("click", function(e) {
         del(index);
       });
+      editBtn.addEventListener("click", function(e) {
+        showEdit(index);
+      });
 
-      li.appendChild(btn);
+      hideBtn.addEventListener("click", function(e) {
+        hideEdit();
+      });
+
+      li.appendChild(delBtn);
+      li.appendChild(editBtn);
       const anker = li.appendChild(document.createElement("A"));
       anker.setAttribute("class", "dark");
-      console.log(item);
 
       anker.innerHTML += item.text;
     });
   }
+}
+
+function showEdit(index) {
+  const text = document.querySelector("#editNote");
+  text.value = readNoteFromIndex(index).text;
+  const saveBtn = document.querySelector("#hideEdit");
+  const modal = document.querySelector("#modal");
+  modal.classList.remove("hide");
+  saveBtn.addEventListener("click", function(e) {
+    saveNoteByIndex(text.value, index);
+  });
+}
+
+function hideEdit() {
+  const modal = document.querySelector("#modal");
+  modal.classList.add("hide");
+}
+
+function saveNoteByIndex(text, index) {
+  console.assert(text != 0, "fail saveNoteByIndex text null");
+  console.assert(index >= 0, "fail saveNoteByIndex index null");
+
+  const notes = loadNotes();
+
+  notes[index].text = text;
+  setNotes(notes);
+}
+
+function readNoteFromIndex(index) {
+  return loadNotes()[index];
 }
 
 function del(index) {

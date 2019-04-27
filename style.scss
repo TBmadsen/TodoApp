@@ -1,3 +1,7 @@
+* {
+  margin: 0px;
+  padding: 0px;
+}
 body {
   background: #ebebeb;
 }
@@ -14,6 +18,30 @@ ul {
       padding: 0em 2em;
       margin: 0.4em;
       background: #d2d2;
+    }
+  }
+}
+
+.hide {
+  display: none !important;
+}
+
+#modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+
+  .form-group {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    textarea {
+      margin-bottom: 10px;
+      height: 200px;
     }
   }
 }
