@@ -13,13 +13,16 @@ function render() {
       const delBtn = document.createElement("button");
       const editBtn = document.createElement("button");
       const hideBtn = document.querySelector("#hideEdit");
+      const compBtn = document.createElement("button");
 
       delBtn.innerText = "del";
       editBtn.innerText = "rediger";
+      compBtn.innerText = "complete";
 
       //TODO: Optimer disse funktioner.
       delBtn.addEventListener("click", function(e) {
         del(index);
+        loadSite();
       });
       editBtn.addEventListener("click", function(e) {
         showEdit(index);
@@ -27,13 +30,20 @@ function render() {
 
       hideBtn.addEventListener("click", function(e) {
         hideEdit();
+        loadSite();
+      });
+
+      compBtn.addEventListener("click", function(e) {
+        e.preventDefault();
+        setComplete(index, anker);
       });
 
       li.appendChild(delBtn);
       li.appendChild(editBtn);
+      li.appendChild(compBtn);
       const anker = li.appendChild(document.createElement("A"));
       anker.setAttribute("class", "dark");
-
+      anker.innerHTML += `#${index}: `;
       anker.innerHTML += item.text;
     });
   }
@@ -75,6 +85,18 @@ function del(index) {
   setNotes(entries);
 }
 
+function setComplete(index, ele) {
+  let items = loadNotes();
+  if (!items[index].status) {
+    // ele.classList.add("completed");
+    items[index].status = true;
+    ele.classList.add("completed");
+    setNotes(items);
+  } else {
+    ele.classList.add("undone");
+  }
+}
+
 //Send function
 function send() {
   const input = document.querySelector("input").value;
@@ -82,7 +104,8 @@ function send() {
     console.log("Fail, no input");
   } else {
     let item2 = {
-      text: input
+      text: input,
+      status: false
     };
     let items = loadNotes();
 
@@ -100,4 +123,8 @@ function loadNotes() {
 
 function setNotes(items) {
   localStorage.setItem("key", JSON.stringify(items));
+}
+
+function loadSite() {
+  location.reload();
 }
