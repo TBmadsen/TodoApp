@@ -41,10 +41,16 @@ function render() {
       li.appendChild(delBtn);
       li.appendChild(editBtn);
       li.appendChild(compBtn);
+      li.classList.add("list-item");
       const anker = li.appendChild(document.createElement("A"));
       anker.setAttribute("class", "dark");
       anker.innerHTML += `#${index}: `;
       anker.innerHTML += item.text;
+      if (item.status) {
+        anker.classList.add("completed");
+      } else {
+        anker.classList.add("undone");
+      }
     });
   }
 }
