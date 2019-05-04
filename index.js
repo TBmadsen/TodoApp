@@ -1,58 +1,102 @@
 window.onload = function() {
   render();
 };
+let status = false;
+
+function resetList(items) {
+  while (items.firstChild) {
+    items.removeChild(items.firstChild);
+  }
+}
+
+function makeList(args) {
+  args.forEach(function(item, index) {
+    if (item.status === status) {
+      renderNote(index, item);
+      !status
+        ? (sortBtn.innerText = "See all Completed")
+        : (sortBtn.innerText = "See all uncompleted");
+    }
+    if (!status) {
+      renderNote(index, item);
+    }
+  });
+}
 
 function render() {
   if (localStorage.length !== 0) {
-    const list = document.querySelector("#items");
-
     const args = loadNotes();
+    const sortBtn = document.querySelector("#sortBtn");
+    const allBtn = document.querySelector("#all");
+    const items = document.querySelector("#items");
 
-    args.forEach(function(item, index) {
-      const li = list.appendChild(document.createElement("LI"));
-      const delBtn = document.createElement("button");
-      const editBtn = document.createElement("button");
-      const hideBtn = document.querySelector("#hideEdit");
-      const compBtn = document.createElement("button");
-
-      delBtn.innerText = "del";
-      editBtn.innerText = "rediger";
-      compBtn.innerText = "complete";
-
-      //TODO: Optimer disse funktioner.
-      delBtn.addEventListener("click", function(e) {
-        del(index);
-        loadSite();
-      });
-      editBtn.addEventListener("click", function(e) {
-        showEdit(index);
-      });
-
-      hideBtn.addEventListener("click", function(e) {
-        hideEdit();
-        loadSite();
-      });
-
-      compBtn.addEventListener("click", function(e) {
-        e.preventDefault();
-        setComplete(index, anker);
-      });
-
-      li.appendChild(delBtn);
-      li.appendChild(editBtn);
-      li.appendChild(compBtn);
-      li.classList.add("list-item");
-      const anker = li.appendChild(document.createElement("A"));
-      anker.setAttribute("class", "dark");
-      anker.innerHTML += `#${index}: `;
-      anker.innerHTML += item.text;
-      if (item.status) {
-        anker.classList.add("completed");
-      } else {
-        anker.classList.add("undone");
-      }
+    allBtn.addEventListener("click", function() {
+      status = status === null;
+      resetList(items);
+      makeList(args);
     });
+
+    sortBtn.addEventListener("click", function() {
+      status = !status ? true : false;
+      resetList(items);
+      makeList(args);
+    });
+
+    makeList(args);
   }
+}
+
+function renderNote(index, item) {
+  const list = document.querySelector("#items");
+
+  const li = list.appendChild(document.createElement("LI"));
+  const comp = document.createElement("i");
+  const delBtn = document.createElement("button");
+  const editBtn = document.createElement("button");
+  const hideBtn = document.querySelector("#hideEdit");
+  const div = document.createElement("div");
+
+  comp.classList.add("far");
+  comp.classList.add("fa-check-circle");
+  div.classList.add("button-group");
+
+  delBtn.innerText = "del";
+  editBtn.innerText = "rediger";
+
+  //TODO: Optimer disse funktioner.
+  delBtn.addEventListener("click", function() {
+    del(index);
+    loadSite();
+  });
+
+  editBtn.addEventListener("click", function() {
+    showEdit(index);
+  });
+
+  hideBtn.addEventListener("click", function() {
+    hideEdit();
+    loadSite();
+  });
+
+  comp.addEventListener("click", function(e) {
+    e.preventDefault();
+    setComplete(index, comp);
+  });
+  li.appendChild(div);
+  div.appendChild(delBtn);
+  div.appendChild(editBtn);
+
+  li.classList.add("list-item");
+  const anker = li.appendChild(document.createElement("A"));
+  anker.setAttribute("class", "dark");
+  anker.innerHTML += `#${index}: `;
+  anker.innerHTML += item.text;
+  if (item.status) {
+    comp.classList.add("completed");
+  } else {
+    anker.classList.add("undone");
+  }
+  li.appendChild(comp);
 }
 
 function showEdit(index) {
@@ -102,6 +146,8 @@ function setComplete(index, ele) {
     ele.classList.add("undone");
   }
 }
+
+function sortCompleted() {}
 
 //Send function
 function send() {
