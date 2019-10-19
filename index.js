@@ -1,7 +1,11 @@
 window.onload = function() {
   render();
 };
-let status = false;
+
+let status = {
+	COMPLETED: 1,
+	UNCOMPLETED: 2,
+};
 
 function resetList(items) {
   while (items.firstChild) {
@@ -10,16 +14,18 @@ function resetList(items) {
 }
 
 function makeList(args) {
-  args.forEach(function(item, index) {
-    if (item.status === status) {
-      renderNote(index, item);
-      !status
-        ? (sortBtn.innerText = "See all Completed")
-        : (sortBtn.innerText = "See all uncompleted");
-    }
-    if (!status) {
-      renderNote(index, item);
-    }
+  	args.forEach(function(item, index) {
+  		switch(item.status){
+  			case status.COMPLETED:
+  				renderNote(item, index);
+  				break;
+  			case status.UNCOMPLETED:
+  				renderNote(item, index);
+  				break;
+  			default:
+  				renderNote(item, index);
+  				break;
+  		}
   });
 }
 
@@ -27,18 +33,26 @@ function render() {
   if (localStorage.length !== 0) {
     const args = loadNotes();
     const sortBtn = document.querySelector("#sortBtn");
-    const allBtn = document.querySelector("#all");
-    const items = document.querySelector("#items");
+    const allBtn 	= document.querySelector("#all");
+    const items 	= document.querySelector("#items");
+ 		const saveBtn = document.querySelector("[data-create]");
+
+ 		saveBtn.addEventListener("click", function(){
+ 			try{
+ 				send();
+		  }catch(e){
+		  	console.error(e);
+		  }
+ 		});
 
     allBtn.addEventListener("click", function() {
-      status = status === null;
       resetList(items);
       makeList(args);
     });
 
-    sortBtn.addEventListener("click", function() {
-      status = !status ? true : false;
-      resetList(items);
+    sortBtn.addEventListener("click", function(e) {
+	  	status === status.COMPLETED ? sortBtn.textContent = "Show all undone" : sortBtn.textContent = "Show all completed";
+	  	resetList(items);
       makeList(args);
     });
 
@@ -46,7 +60,8 @@ function render() {
   }
 }
 
-function renderNote(index, item) {
+function renderNote(item, index) {
+
   const list = document.querySelector("#items");
 
   const li = list.appendChild(document.createElement("LI"));
@@ -79,9 +94,11 @@ function renderNote(index, item) {
   });
 
   comp.addEventListener("click", function(e) {
-    e.preventDefault();
-    setComplete(index, comp);
+    e.preventDefault();	
+    setComplete(index, this);
+    loadSite();
   });
+
   li.appendChild(div);
   div.appendChild(delBtn);
   div.appendChild(editBtn);
@@ -89,13 +106,10 @@ function renderNote(index, item) {
   li.classList.add("list-item");
   const anker = li.appendChild(document.createElement("A"));
   anker.setAttribute("class", "dark");
-  anker.innerHTML += `#${index}: `;
-  anker.innerHTML += item.text;
-  if (item.status) {
-    comp.classList.add("completed");
-  } else {
-    anker.classList.add("undone");
-  }
+  anker.textContent += item.text;
+
+  item.status === 1 ? comp.classList.add("completed") : comp.classList.add("undone");
+
   li.appendChild(comp);
 }
 
@@ -116,12 +130,11 @@ function hideEdit() {
 }
 
 function saveNoteByIndex(text, index) {
-  console.assert(text != 0, "fail saveNoteByIndex text null");
-  console.assert(index >= 0, "fail saveNoteByIndex index null");
 
   const notes = loadNotes();
-
+  console.log(index);
   notes[index].text = text;
+  notes[index].status = status.UNCOMPLETED;
   setNotes(notes);
 }
 
@@ -136,40 +149,41 @@ function del(index) {
 }
 
 function setComplete(index, ele) {
-  let items = loadNotes();
-  if (!items[index].status) {
-    // ele.classList.add("completed");
-    items[index].status = true;
-    ele.classList.add("completed");
+  	let items = loadNotes();
+  	if (items[index].status === status.UNCOMPLETED) {
+  		ele.classList.add("completed");
+  		items[index].status = status.COMPLETED;
+  	}else {
+  	  ele.classList.add("undone");
+  	  items[index].status = status.UNCOMPLETED;
+  	}
     setNotes(items);
-  } else {
-    ele.classList.add("undone");
-  }
 }
-
-function sortCompleted() {}
 
 //Send function
 function send() {
   const input = document.querySelector("input").value;
   if (!input) {
-    console.log("Fail, no input");
+  	throw new Error("No input isset");
   } else {
-    let item2 = {
-      text: input,
-      status: false
-    };
-    let items = loadNotes();
+	let item = {
+	  text: input,
+	  status: status.UNCOMPLETED
+	};
 
+    let items = loadNotes();
+    
     items = items ? items : [];
-    items.push(item2);
+    items.push(item);
     setNotes(items);
   }
+
 }
 
 function loadNotes() {
   const notes = localStorage.getItem("key");
   const args = JSON.parse(notes);
+
   return args;
 }
 
